@@ -37,53 +37,59 @@ export class ProjectService {
 
     const proj = this.projRepo.create({
       ...dto,
+      layers: String(dto.layers) === 'false' ? 0 : 1,
       coordinates: JSON.stringify(dto.coordinates),
       modelsArr: JSON.stringify(modelsArr),
       globalObj: JSON.stringify(globalObj),
-      url: '',
+      userId: user.id,
+      url: 'https://picsum.photos/seed/edAp1/1680/1986',
     });
 
     return this.projRepo.save(proj);
   }
 
   async getUserProjects(userId: number): Promise<ListProject[]> {
-  const projects = await this.projRepo.find({
-    where: { user: { id: userId } },
-    order: { updateTime: 'DESC' },
-  });
+    const projects = await this.projRepo.find({
+      where: { userId: userId },
+      order: { updateTime: 'DESC' },
+    });
 
-  return projects.map((p) => ({
-    id: p.id.toString(),
-    title: p.title,
-    createTime: p.createTime.toISOString(),
-    updateTime: p.updateTime.toISOString(),
-    modelsArr: JSON.parse(p.modelsArr),
-    globalObj: JSON.parse(p.globalObj),
-    url: p.url,
-    coordinates: JSON.parse(p.coordinates),
-    radius: p.radius,
-    layers: p.layers,
-  }));
-}
+    return projects.map((p) => ({
+      id: p.id.toString(),
+      title: p.title,
+      createTime: p.createTime.toISOString(),
+      updateTime: p.updateTime.toISOString(),
+      modelsArr: JSON.parse(p.modelsArr),
+      globalObj: JSON.parse(p.globalObj),
+      url: p.url,
+      coordinates: JSON.parse(p.coordinates),
+      radius: p.radius,
+      layers: p.layers === 1 ? true : false,
+      userId: p.userId
+    }));
+  }
 
-  async getProjectById(id: number): Promise<Project> {
+  async getProjectById(id: string): Promise<Project> {
     const project = await this.projRepo.findOne({
       where: { id },
     });
 
     if (!project) throw new NotFoundException('项目不存在');
-
-    return project;
+    
+    return {
+      ...project,
+      layers: (project.layers === 1 ? true : false) as unknown as number,
+    };
   }
 
-    async deleteProjectById(id: number): Promise<void> {
+  async deleteProjectById(id: string): Promise<void> {
     const project = await this.projRepo.findOne({ where: { id } });
     if (!project) throw new NotFoundException('项目不存在');
 
-    await this.projRepo.delete(id);
+    await this.projRepo.delete({ id });
   }
 
-  async findById(id: number) {
+  async findById(id: string) {
     return this.projRepo.findOneBy({ id });
   }
 

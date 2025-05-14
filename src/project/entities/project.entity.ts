@@ -4,7 +4,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Up
 @Entity()
 export class Project {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   title: string;
@@ -15,8 +15,8 @@ export class Project {
   @Column('float')
   radius: number;
 
-  @Column({ default: false })
-  layers: boolean;
+  @Column()
+  layers: number;
 
   @Column('text')
   modelsArr: string;
@@ -30,8 +30,8 @@ export class Project {
   @Column({ nullable: true })
   templateId?: string;
 
-  @ManyToOne(() => User, user => user.projects)
-  user: User;
+  @Column()
+  userId: number;
 
   @CreateDateColumn()
   createTime: Date;

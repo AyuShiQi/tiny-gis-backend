@@ -2,11 +2,11 @@ export const defaultGlobalObj = {
   showDistance: true,
   showGrid: true,
   gridCellSize: 100,
-  layersColor: '#00ffff',
-  distanceColor: '#ff0000',
+  layersColor: '#fff',
+  distanceColor: '#000',
   gridColor: '#cccccc',
   showSkybox: true,
-  skyboxName: 'default',
-  skyColor: '#ffffff',
+  skyboxName: '默认',
+  skyColor: '#000',
   showSkyAtmosphere: true
 };

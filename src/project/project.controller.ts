@@ -15,7 +15,7 @@ export class ProjectController {
     const userId = req.user.userId;
     const proj = await this.projectService.create(dto, userId);
     return {
-      code: 0,
+      code: 200,
       message: '项目创建成功',
       data: {
         id: proj.id
@@ -29,8 +29,8 @@ export class ProjectController {
     const userId = req.user.id;
     const data = await this.projectService.getUserProjects(userId);
     return {
-      code: 0,
-      message: 'success',
+      code: 200,
+      message: '获取成功',
       data,
     };
   }
@@ -40,10 +40,10 @@ export class ProjectController {
   async getProjectDetail(
     @Query('id') id: string
   ): Promise<{ code: number; message: string; data: Project }> {
-    const project = await this.projectService.getProjectById(Number(id));
+    const project = await this.projectService.getProjectById(id);
     return {
-      code: 0,
-      message: 'success',
+      code: 200,
+      message: '获取成功',
       data: project,
     };
   }
@@ -54,9 +54,9 @@ export class ProjectController {
     @Req() req,
     @Body('id') id: string
   ): Promise<{ code: number; message: string }> {
-    await this.projectService.deleteProjectById(Number(id));
+    await this.projectService.deleteProjectById(id);
     return {
-      code: 0,
+      code: 200,
       message: '删除成功',
     };
   }
@@ -87,8 +87,8 @@ export class ProjectController {
 
     const updated = await this.projectService.save(project);
     return {
-      code: 0,
-      message: 'success',
+      code: 200,
+      message: '更新成功',
       data: updated,
     };
   }
