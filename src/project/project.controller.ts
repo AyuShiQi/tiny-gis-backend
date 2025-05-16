@@ -27,6 +27,7 @@ export class ProjectController {
   @Get('lists')
   async getProjectList(@Req() req): Promise<GetProjsRes> {
     const userId = req.user.id;
+    console.log(req.user, 233)
     const data = await this.projectService.getUserProjects(userId);
     return {
       code: 200,
@@ -78,14 +79,15 @@ export class ProjectController {
     }
 
     if (modelsArr) {
-      project.modelsArr = JSON.parse(modelsArr);
+      project.modelsArr = modelsArr;
     }
 
     if (globalObj) {
-      project.globalObj = JSON.parse(globalObj);
+      project.globalObj = globalObj;
     }
 
     const updated = await this.projectService.save(project);
+
     return {
       code: 200,
       message: '更新成功',

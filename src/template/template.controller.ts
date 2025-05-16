@@ -11,8 +11,8 @@ export class TemplateController {
   async getTemplates(@Req() req) {
     const list = await this.templateService.findAll();
     return {
-      code: 0,
-      message: 'success',
+      code: 200,
+      message: '获取成功',
       data: list.map(t => ({ id: t.id, name: t.name })),
     };
   }

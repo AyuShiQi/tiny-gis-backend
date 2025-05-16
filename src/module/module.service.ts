@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Code, Repository } from 'typeorm';
 import { Module } from './entities/module.entity';
 import { CreateModuleDto } from './dto/create-module.dto';
 import * as fs from 'fs';
@@ -19,44 +19,66 @@ export class ModuleService {
     if (!mod) throw new NotFoundException('Module not found');
 
     return {
-      id: mod.id,
-      name: mod.name,
-      url: mod.url,
-      type: mod.type,
-      detail: mod.detail,
-      userId: mod.userId,
+      code: 200,
+      msg: '获取详情成功',
+      data: {
+        id: mod.id,
+        name: mod.name,
+        url: mod.url,
+        type: mod.type,
+        detail: mod.detail,
+        userId: mod.userId,
+      }
     };
   }
 
-  async create(file: any, dto: CreateModuleDto) {
+  async create(files: any[], dto: CreateModuleDto, userId: number) {
     let type: 'json' | 'gltf' = 'json';
-    let detail = dto.detail || '';
-    if (file) {
+    let detail = dto.detail;
+    let url = '';
+
+    const uploadDir = path.join(__dirname, '../../uploads');
+
+    for (const file of files) {
       const filename = `${Date.now()}_${file.originalname}`;
-      const filepath = path.join(__dirname, '../../uploads', filename);
+      const filepath = path.join(uploadDir, filename);
       fs.writeFileSync(filepath, file.buffer);
-      detail = `/uploads/${filename}`;
-      type = 'gltf';
+
+      if (file.originalname.endsWith('.gltf') || file.originalname.endsWith('.glb')) {
+        detail = `/uploads/${filename}`;
+        type = 'gltf';
+      } else if (file.mimetype.startsWith('image/')) {
+        url = `/uploads/${filename}`; // 设置缩略图 URL
+      }
     }
 
     const module = this.moduleRepo.create({
       ...dto,
       detail,
-      type
+      type,
+      userId,
+      url // 替代默认图片
     });
 
-    return this.moduleRepo.save(module);
+    const nowFile = await this.moduleRepo.save(module);
+
+    return {
+      code: 200,
+      msg: '创建成功',
+      data: nowFile
+    }
   }
+
 
   async remove(id: number) {
     return this.moduleRepo.delete(id);
   }
 
   async findByUserOrPublic(userId: number) {
-    return this.moduleRepo.find({
+    const res = await this.moduleRepo.find({
       where: [
         { userId },       // 当前用户的模块
-        { userId: null as unknown as undefined }, // 公共模块
+        { userId: 0 },       // 当前用户的模块
       ],
       select: {
         id: true,
@@ -67,5 +89,13 @@ export class ModuleService {
         type: true
       },
     });
+
+    console.log(userId, res)
+
+    return {
+      code: 200,
+      msg: '获取成功',
+      data: res
+    }
   }
 }

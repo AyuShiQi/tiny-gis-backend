@@ -14,8 +14,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    console.log(payload)
     // req.user 会自动注入这个返回值0
-    return { id: payload.id, username: payload.username };
+    return { id: payload.userId };
   }
 }
 
