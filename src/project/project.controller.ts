@@ -1,9 +1,12 @@
-import { Controller, Post, Body, UseGuards, Request, Get, Req, Query, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, Req, Query, ForbiddenException, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ProjectService } from './project.service';
 import { CreateProjDto } from './dto/create-proj.dto';
 import { GetProjsRes } from './interface/project';
 import { Project } from './entities/project.entity';
+import * as fs from 'fs';
+import * as path from 'path';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('project')
 export class ProjectController {
@@ -65,13 +68,26 @@ export class ProjectController {
 
   @UseGuards(JwtAuthGuard)
   @Post('update')
-  async updateProject(@Body() body: any, @Req() req): Promise<{ code: number; message: string, data: Project }> {
-    const { id, title, modelsArr, globalObj } = body;
-
+  @UseInterceptors(AnyFilesInterceptor())
+  async update(@UploadedFiles() files: Array<Express.Multer.File>, @Body() dto, @Req() req) {
+    const { id, title, modelsArr, globalObj } = dto;
+  
     const project = await this.projectService.findById(id);
 
     if (!project) {
       throw new ForbiddenException('项目不存在');
+    }
+
+    let url = 'https://picsum.photos/seed/edAp1/1680/1986'
+    const uploadDir = path.join(__dirname, '../../uploads');
+    for (const file of files) {
+      const filename = `${Date.now()}_${file.originalname}`;
+      const filepath = path.join(uploadDir, filename);
+      fs.writeFileSync(filepath, file.buffer);
+
+      if (file.mimetype.startsWith('image/')) {
+        project.url = `/uploads/${filename}`; // 设置缩略图 URL
+      }
     }
 
     if (title) {

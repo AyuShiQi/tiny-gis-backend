@@ -35,7 +35,7 @@ export class ModuleService {
   async create(files: any[], dto: CreateModuleDto, userId: number) {
     let type: 'json' | 'gltf' = 'json';
     let detail = dto.detail;
-    let url = '';
+    let url = 'https://fastly.picsum.photos/id/825/3754/1840.jpg?hmac=TxUQK2vSxvrvHH03CCabNRBJjiB0uUh-37NVfDnm3vQ';
 
     const uploadDir = path.join(__dirname, '../../uploads');
 
