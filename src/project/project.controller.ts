@@ -78,15 +78,16 @@ export class ProjectController {
       throw new ForbiddenException('项目不存在');
     }
 
-    let url = 'https://picsum.photos/seed/edAp1/1680/1986'
     const uploadDir = path.join(__dirname, '../../uploads');
-    for (const file of files) {
-      const filename = `${Date.now()}_${file.originalname}`;
-      const filepath = path.join(uploadDir, filename);
-      fs.writeFileSync(filepath, file.buffer);
+    if (files) {
+      for (const file of files) {
+        const filename = `${Date.now()}_${file.originalname}`;
+        const filepath = path.join(uploadDir, filename);
+        fs.writeFileSync(filepath, file.buffer);
 
-      if (file.mimetype.startsWith('image/')) {
-        project.url = `/uploads/${filename}`; // 设置缩略图 URL
+        if (file.mimetype.startsWith('image/')) {
+          project.url = `/uploads/${filename}`; // 设置缩略图 URL
+        }
       }
     }
 
